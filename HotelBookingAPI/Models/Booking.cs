@@ -1,9 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HotelBookingAPI.Model
+namespace HotelBookingAPI.Models
 {
     public class Booking
     {
+        public enum BookingStatus
+        {
+            Completed,
+            Cancelled
+        }
+
         [Key]
         public int Id { get; set; }
 
@@ -24,7 +30,12 @@ namespace HotelBookingAPI.Model
         [Required]
         public DateTime EndDate { get; set; }
 
+        public DateTime ModifiedDate { get; set; }
+
         [Required]
         public BookingStatus Status { get; set; }
+
+        [Required]
+        public Room Room { get; set; } 
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace HotelBookingAPI.Model
+namespace HotelBookingAPI.Models
 {
     public class Address
     {
@@ -12,7 +12,10 @@ namespace HotelBookingAPI.Model
 
         public string ZipCode { get; set; }
 
+        [Required]
         public string State { get; set; }
+
+        [Required]
         public string Country { get; set; }
 
     }
