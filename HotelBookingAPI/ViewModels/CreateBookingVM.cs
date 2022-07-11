@@ -4,6 +4,7 @@ namespace HotelBookingAPI.ViewModels
 {
     public class CreateBookingVM
     {
+
         [Required]
         public double TotalCost { get; set; }
 

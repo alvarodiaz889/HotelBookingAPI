@@ -2,12 +2,12 @@
 {
     public class AvailabilityVM
     {
-        public IDictionary<int, ICollection<SlotVM>> Availability { get; set; }
-    }
-    public class SlotVM
-    {
-        public string Name { get; set; }
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public AvailabilityVM(int roomId, ICollection<DateTime> availability)
+        {
+            RoomId = roomId;
+            Availability = availability;
+        }
+        public int RoomId { get; set; }
+        public ICollection<DateTime> Availability { get; set; }
     }
 }

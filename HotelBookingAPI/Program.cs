@@ -1,5 +1,9 @@
+using AutoMapper;
 using HotelBookingAPI.Data;
+using HotelBookingAPI.Models;
+using HotelBookingAPI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +19,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
 
+builder.Services.Configure<BookingOptions>(
+    builder.Configuration.GetSection(BookingOptions.SECTION));
+
+builder.Services.AddScoped<IBookingService>(ctx => {
+    var db = ctx.GetRequiredService<ApiDBContext>();
+    var opt = ctx.GetRequiredService<IOptions<BookingOptions>>();
+    var map = ctx.GetRequiredService<IMapper>();
+    return new BookingService(db, opt, map);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,6 +37,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+using var scope = (app as IApplicationBuilder).ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+scope.ServiceProvider.GetRequiredService<ApiDBContext>().Database.Migrate();
 
 app.UseHttpsRedirection();
 
