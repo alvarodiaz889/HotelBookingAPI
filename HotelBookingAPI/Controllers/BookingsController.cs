@@ -18,6 +18,16 @@ namespace HotelBookingAPI.Controllers
 
         [HttpGet]
         [Produces("application/json")]
+        [Route("Bookings")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<ICollection<BookingVM>>> GetBookings()
+        {
+            var result = await _bookingService.GetAll();
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Produces("application/json")]
         [Route("Availability")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<ICollection<AvailabilityVM>>> GetAvailability()

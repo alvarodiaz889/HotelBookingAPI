@@ -5,11 +5,11 @@ namespace HotelBookingAPI.Services
 {
     public interface IBookingService
     {
-        Task<BookingResponse<ICollection<Booking>>> GetAll();
-        Task<BookingResponse<ICollection<Booking>>> GetByContactID(string id);
-        Task<BookingResponse<Booking>> Create(CreateBookingVM booking);
-        Task<BookingResponse<Booking>> Update(UpdateBookingVM booking);
-        Task<BookingResponse<Booking>> Cancel(int id);
+        Task<BookingResponse<ICollection<BookingVM>>> GetAll();
+        Task<BookingResponse<ICollection<BookingVM>>> GetByContactID(string id);
+        Task<BookingResponse<BookingVM>> Create(CreateBookingVM booking);
+        Task<BookingResponse<BookingVM>> Update(UpdateBookingVM booking);
+        Task<BookingResponse<BookingVM>> Cancel(int id);
         Task<BookingResponse<ICollection<AvailabilityVM>>> GetAvailability();
     }
 }

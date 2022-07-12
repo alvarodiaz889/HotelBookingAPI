@@ -21,31 +21,40 @@ namespace HotelBookingAPI.Services
             _options = options.Value;
             _mapper = mapper;
         }
-        public async Task<BookingResponse<ICollection<Booking>>> GetAll()
+        public async Task<BookingResponse<ICollection<BookingVM>>> GetAll()
         {
-            var bookings = await _dbContext.Bookings.ToListAsync();
-            return new BookingResponse<ICollection<Booking>>(bookings, string.Empty, true);
+            var bookings = await _dbContext.Bookings
+                .ToListAsync();
+
+            var mapped = _mapper.Map<ICollection<BookingVM>>(bookings);
+            return new BookingResponse<ICollection<BookingVM>>(mapped, string.Empty, true);
         }
 
-        public async Task<BookingResponse<ICollection<Booking>>> GetByContactID(string id)
+        public async Task<BookingResponse<ICollection<BookingVM>>> GetByContactID(string id)
         {
-            var bookings = await _dbContext.Bookings.Where(w => w.Contact.Id == id).ToListAsync();
-            return new BookingResponse<ICollection<Booking>>(bookings, string.Empty, true);
+            var bookings = await _dbContext.Bookings
+                .Where(w => w.Contact.Id == id)
+                .ToListAsync();
+            var mapped = _mapper.Map<ICollection<BookingVM>>(bookings);
+            return new BookingResponse<ICollection<BookingVM>>(mapped, string.Empty, true);
         }
 
-        public async Task<BookingResponse<Booking>> Create(CreateBookingVM booking)
+        public async Task<BookingResponse<BookingVM>> Create(CreateBookingVM booking)
         {
             var b = _mapper.Map<Booking>(booking);
             await _dbContext.Bookings.AddAsync(b);
-            return new BookingResponse<Booking>(b, string.Empty, true);
+            await _dbContext.SaveChangesAsync();
+
+            var mapped = _mapper.Map<BookingVM>(b);
+            return new BookingResponse<BookingVM>(mapped, string.Empty, true);
         }
-        public async Task<BookingResponse<Booking>> Update(UpdateBookingVM booking)
+        public async Task<BookingResponse<BookingVM>> Update(UpdateBookingVM booking)
         {
             var b = await _dbContext.Bookings
                 .FirstOrDefaultAsync(b => b.Id == booking.Id 
                     && b.ReservationCode == booking.ReservationCode );
             if (b == null)
-                return new BookingResponse<Booking>(null, "Booking doesn't exist", false);
+                return new BookingResponse<BookingVM>(null, "Booking doesn't exist", false);
 
             b.StartDate = booking.StartDate;
             b.EndDate = booking.EndDate;
@@ -54,14 +63,15 @@ namespace HotelBookingAPI.Services
             _dbContext.Bookings.Update(b);
             await _dbContext.SaveChangesAsync();
 
-            return new BookingResponse<Booking>(b, string.Empty, true);
+            var mapped = _mapper.Map<BookingVM>(b);
+            return new BookingResponse<BookingVM>(mapped, string.Empty, true);
         }
 
-        public async Task<BookingResponse<Booking>> Cancel(int id)
+        public async Task<BookingResponse<BookingVM>> Cancel(int id)
         {
             var b = await _dbContext.Bookings.FirstOrDefaultAsync(b => b.Id == id);
             if (b == null)
-                return new BookingResponse<Booking>(null, "Booking doesn't exist", false);
+                return new BookingResponse<BookingVM>(null, "Booking doesn't exist", false);
 
             b.Status = Booking.BookingStatus.Cancelled;
             b.ModifiedDate = DateTime.Now;
@@ -69,7 +79,8 @@ namespace HotelBookingAPI.Services
             _dbContext.Bookings.Update(b);
             await _dbContext.SaveChangesAsync();
 
-            return new BookingResponse<Booking>(b, string.Empty, true);
+            var mapped = _mapper.Map<BookingVM>(b);
+            return new BookingResponse<BookingVM>(mapped, string.Empty, true);
         }        
 
         public async Task<BookingResponse<ICollection<AvailabilityVM>>> GetAvailability()
