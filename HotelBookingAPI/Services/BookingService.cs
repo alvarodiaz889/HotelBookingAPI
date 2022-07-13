@@ -45,7 +45,7 @@ namespace HotelBookingAPI.Services
         {
             var b = _mapper.Map<CreateBookingVM, Booking>(booking);
 
-            if (!await IsDateRangeValid(b.StartDate, b.EndDate))
+            if (!await IsDateRangeValid(b.StartDate, b.EndDate, null))
                 return new BookingResponse<BookingVM>(null, "Date range is not valid", false);
 
             var code = BookingTools.GenerateReservationCode(6);
@@ -68,16 +68,18 @@ namespace HotelBookingAPI.Services
         public async Task<BookingResponse<BookingVM>> Update(UpdateBookingVM booking)
         {
             var b = await _dbContext.Bookings
+                .Include(i => i.Contact)
+                .Include(i => i.Room)
                 .FirstOrDefaultAsync(b => b.Id == booking.Id
                     && b.ReservationCode == booking.ReservationCode);
             if (b == null)
                 return new BookingResponse<BookingVM>(null, "Booking doesn't exist", false);
 
-            if (!await IsDateRangeValid(b.StartDate, b.EndDate))
+            if (!await IsDateRangeValid(booking.StartDate, booking.EndDate, b))
                 return new BookingResponse<BookingVM>(null, "Date range is not valid", false);
 
-            b.StartDate = booking.StartDate;
-            b.EndDate = booking.EndDate;
+            b.StartDate = booking.StartDate.Date;
+            b.EndDate = booking.EndDate.Date;
             b.ModifiedDate = DateTime.Now;
 
             _dbContext.Bookings.Update(b);
@@ -87,9 +89,14 @@ namespace HotelBookingAPI.Services
             return new BookingResponse<BookingVM>(mapped, string.Empty, true);
         }
 
-        public async Task<BookingResponse<BookingVM>> Cancel(int id)
+        public async Task<BookingResponse<BookingVM>> Cancel(CancelBookingVM booking)
         {
-            var b = await _dbContext.Bookings.FirstOrDefaultAsync(b => b.Id == id);
+            var b = await _dbContext.Bookings
+                .Include(i => i.Contact)
+                .Include(i => i.Room)
+                .FirstOrDefaultAsync(b => b.Id == booking.Id
+                    && b.ReservationCode == booking.ReservationCode);
+
             if (b == null)
                 return new BookingResponse<BookingVM>(null, "Booking doesn't exist", false);
 
@@ -115,7 +122,7 @@ namespace HotelBookingAPI.Services
                 .ToListAsync();
 
             var room = BookingTools.GetDefaultRoom();
-            var availability = Enumerable.Range(_options.MinStartDaysToBook, _options.MaxAdvanceDaysToBook)
+            var availability = Enumerable.Range(_options.MinStartDaysToBook, _options.MaxAdvanceDaysToBook - _options.MinStartDaysToBook)
                 .Select(s => today.AddDays(s))
                 .Where(w => booked.Any(b => w >= b.StartDate && w <= b.EndDate) == false)
                 .ToList();
@@ -124,20 +131,24 @@ namespace HotelBookingAPI.Services
             return new BookingResponse<ICollection<AvailabilityVM>>(vm, string.Empty, true);
         }
 
-        private async Task<bool> IsDateRangeValid(DateTime start, DateTime end)
+        private async Task<bool> IsDateRangeValid(DateTime start, DateTime end, Booking booking)
         {
             if ((end - start).TotalDays > _options.MaxBookingDaysAllowance) 
                 return false;
 
             var today = DateTime.Today;
-            if (start <= today.AddDays(_options.MinStartDaysToBook))
+            if (start < today.AddDays(_options.MinStartDaysToBook))
                 return false;
 
-            var booked = await _dbContext.Bookings
+            var query = _dbContext.Bookings
                 .Where(w => w.Status == Booking.BookingStatus.Completed)
                 .Where(w => (start.Date >= w.StartDate && start.Date <= w.EndDate)
-                        || (end.Date >= w.StartDate && end.Date <= w.EndDate))
-                .CountAsync();
+                        || (end.Date >= w.StartDate && end.Date <= w.EndDate));
+
+            if (booking != null)
+                query = query.Where(w => w.Id != booking.Id);
+
+            var booked = await query.CountAsync();
 
             return booked <= 0;
         }

@@ -10,7 +10,10 @@ namespace HotelBookingAPI.Mapper
         public BookingMapper()
         {
             CreateMap<CreateBookingVM, Booking>()
-                //.ForMember(dest => dest.BookingDate, opt => opt.BookingDate))
+                .ForMember(dest => dest.StartDate,
+                    opt => opt.MapFrom((src, dest) => src.StartDate.Date))
+                .ForMember(dest => dest.EndDate,
+                    opt => opt.MapFrom((src, dest) => src.EndDate.Date))
                 .AfterMap((src, dest) =>
                 {
                     dest.Contact = new Person
