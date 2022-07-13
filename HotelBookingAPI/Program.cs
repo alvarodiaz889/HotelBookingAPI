@@ -4,6 +4,7 @@ using HotelBookingAPI.Models;
 using HotelBookingAPI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using static HotelBookingAPI.Middlewares.ExceptionMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,4 +48,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+ExceptionsMiddleware.HandleExceptionsAndLogging(app);
+
 app.Run();
+
+
