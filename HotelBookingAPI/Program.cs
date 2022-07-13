@@ -39,6 +39,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//apply pending migrations on the DB
 using var scope = (app as IApplicationBuilder).ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
 scope.ServiceProvider.GetRequiredService<ApiDBContext>().Database.Migrate();
 
@@ -48,6 +49,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+//custom middleware to handle exceptions
 ExceptionsMiddleware.HandleExceptionsAndLogging(app);
 
 app.Run();
