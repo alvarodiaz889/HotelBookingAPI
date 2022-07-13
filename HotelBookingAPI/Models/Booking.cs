@@ -30,7 +30,7 @@ namespace HotelBookingAPI.Models
         [Required]
         public DateTime EndDate { get; set; }
 
-        public DateTime ModifiedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         [Required]
         public BookingStatus Status { get; set; }

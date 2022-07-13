@@ -24,6 +24,8 @@ namespace HotelBookingAPI.Services
         public async Task<BookingResponse<ICollection<BookingVM>>> GetAll()
         {
             var bookings = await _dbContext.Bookings
+                .Include(i => i.Contact)
+                .Include(i => i.Room)
                 .ToListAsync();
 
             var mapped = _mapper.Map<ICollection<BookingVM>>(bookings);
@@ -41,7 +43,22 @@ namespace HotelBookingAPI.Services
 
         public async Task<BookingResponse<BookingVM>> Create(CreateBookingVM booking)
         {
-            var b = _mapper.Map<Booking>(booking);
+            var b = _mapper.Map<CreateBookingVM, Booking>(booking);
+
+            if (!await IsDateRangeValid(b.StartDate, b.EndDate))
+                return new BookingResponse<BookingVM>(null, "Date range is not valid", false);
+
+            var code = BookingTools.GenerateReservationCode(6);
+            while (_dbContext.Bookings.FirstOrDefault(f => f.ReservationCode == code) != null)
+                code = BookingTools.GenerateReservationCode(6);
+            b.ReservationCode = code;
+
+            b.Room = await _dbContext.Rooms.FirstOrDefaultAsync(f => f.Id == BookingTools.GetDefaultRoom().Id);
+
+            var contact = await _dbContext.People.FirstOrDefaultAsync(f => f.Id == b.Contact.Id);
+            if (contact != null)
+                b.Contact = contact;
+
             await _dbContext.Bookings.AddAsync(b);
             await _dbContext.SaveChangesAsync();
 
@@ -51,10 +68,13 @@ namespace HotelBookingAPI.Services
         public async Task<BookingResponse<BookingVM>> Update(UpdateBookingVM booking)
         {
             var b = await _dbContext.Bookings
-                .FirstOrDefaultAsync(b => b.Id == booking.Id 
-                    && b.ReservationCode == booking.ReservationCode );
+                .FirstOrDefaultAsync(b => b.Id == booking.Id
+                    && b.ReservationCode == booking.ReservationCode);
             if (b == null)
                 return new BookingResponse<BookingVM>(null, "Booking doesn't exist", false);
+
+            if (!await IsDateRangeValid(b.StartDate, b.EndDate))
+                return new BookingResponse<BookingVM>(null, "Date range is not valid", false);
 
             b.StartDate = booking.StartDate;
             b.EndDate = booking.EndDate;
@@ -86,8 +106,8 @@ namespace HotelBookingAPI.Services
         public async Task<BookingResponse<ICollection<AvailabilityVM>>> GetAvailability()
         {
             var today = DateTime.Today;
-            var startDay = today.AddDays(1).Date;
-            var endDay = today.AddDays(31).Date;
+            var startDay = today.AddDays(_options.MinStartDaysToBook).Date;
+            var endDay = today.AddDays(_options.MaxAdvanceDaysToBook).Date;
             
             var booked = await _dbContext.Bookings
                 .Where(w => w.Status == Booking.BookingStatus.Completed)
@@ -95,13 +115,31 @@ namespace HotelBookingAPI.Services
                 .ToListAsync();
 
             var room = BookingTools.GetDefaultRoom();
-            var availability = Enumerable.Range(1, 30)
+            var availability = Enumerable.Range(_options.MinStartDaysToBook, _options.MaxAdvanceDaysToBook)
                 .Select(s => today.AddDays(s))
                 .Where(w => booked.Any(b => w >= b.StartDate && w <= b.EndDate) == false)
                 .ToList();
 
             var vm = new AvailabilityVM[] { new AvailabilityVM(room.Id, availability) };
             return new BookingResponse<ICollection<AvailabilityVM>>(vm, string.Empty, true);
+        }
+
+        private async Task<bool> IsDateRangeValid(DateTime start, DateTime end)
+        {
+            if ((end - start).TotalDays > _options.MaxBookingDaysAllowance) 
+                return false;
+
+            var today = DateTime.Today;
+            if (start <= today.AddDays(_options.MinStartDaysToBook))
+                return false;
+
+            var booked = await _dbContext.Bookings
+                .Where(w => w.Status == Booking.BookingStatus.Completed)
+                .Where(w => (start.Date >= w.StartDate && start.Date <= w.EndDate)
+                        || (end.Date >= w.StartDate && end.Date <= w.EndDate))
+                .CountAsync();
+
+            return booked <= 0;
         }
     }
 }

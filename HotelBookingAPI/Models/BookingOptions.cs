@@ -6,6 +6,6 @@
 
         public int MaxBookingDaysAllowance { get; set; }
         public int MaxAdvanceDaysToBook { get; set; }
-        public int MinStartBookingDays { get; set; }
+        public int MinStartDaysToBook { get; set; }
     }
 }

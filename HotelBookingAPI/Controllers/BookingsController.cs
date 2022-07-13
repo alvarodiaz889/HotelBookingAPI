@@ -18,7 +18,6 @@ namespace HotelBookingAPI.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [Route("Bookings")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<ICollection<BookingVM>>> GetBookings()
         {
@@ -38,12 +37,11 @@ namespace HotelBookingAPI.Controllers
 
         [HttpPost]
         [Produces("application/json")]
-        [Route("Bookings")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<int>> CreateBooking(CreateBookingVM booking)
+        public async Task<ActionResult<BookingResponse<BookingVM>>> CreateBooking(CreateBookingVM booking)
         {
-            var result = await _bookingService.GetAvailability();
+            var result = await _bookingService.Create(booking);
             return Ok(result);
         }
 

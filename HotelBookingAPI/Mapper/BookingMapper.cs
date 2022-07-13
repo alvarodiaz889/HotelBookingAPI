@@ -13,8 +13,8 @@ namespace HotelBookingAPI.Mapper
                 //.ForMember(dest => dest.BookingDate, opt => opt.BookingDate))
                 .AfterMap((src, dest) =>
                 {
-                    dest.Contact = new Person 
-                    { 
+                    dest.Contact = new Person
+                    {
                         Id = src.ContactId,
                         Email = src.ContactEmail,
                         Age = src.ContactAge,
@@ -30,6 +30,17 @@ namespace HotelBookingAPI.Mapper
                     dest.Room = BookingTools.GetDefaultRoom();
                     dest.BookingDate = DateTime.Now;
                 })
+                .ReverseMap();
+
+            CreateMap<Booking, BookingVM>()
+                .ForMember(dest => dest.ContactId,
+                    opt => opt.MapFrom((src, dest) => src.Contact?.Id))
+                .ForMember(dest => dest.ContactName,
+                    opt => opt.MapFrom((src, dest) => src.Contact?.Name))
+                .ForMember(dest => dest.ContactEmail,
+                    opt => opt.MapFrom((src, dest) => src.Contact?.Email))
+                .ForMember(dest => dest.Status,
+                    opt => opt.MapFrom((src, dest) => src.Status.ToString()))
                 .ReverseMap();
         }
     }

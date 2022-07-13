@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelBookingAPI.Migrations
 {
     [DbContext(typeof(ApiDBContext))]
-    [Migration("20220712005107_InitialMigration")]
+    [Migration("20220712190849_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace HotelBookingAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Address");
                 });
 
             modelBuilder.Entity("HotelBookingAPI.Models.Booking", b =>
@@ -60,7 +60,7 @@ namespace HotelBookingAPI.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ModifiedDate")
+                    b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ReservationCode")

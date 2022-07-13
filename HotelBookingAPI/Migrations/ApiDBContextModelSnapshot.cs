@@ -58,7 +58,7 @@ namespace HotelBookingAPI.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ModifiedDate")
+                    b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("ReservationCode")

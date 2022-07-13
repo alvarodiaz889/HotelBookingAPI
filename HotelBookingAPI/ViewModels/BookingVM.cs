@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static HotelBookingAPI.Models.Booking;
 
 namespace HotelBookingAPI.ViewModels
 {
@@ -6,36 +7,27 @@ namespace HotelBookingAPI.ViewModels
     {
         public int Id { get; set; }
 
-        [Required]
-        public double TotalCost { get; set; }
+        public string ReservationCode { get; set; }
 
-        [Required]
-        public DateTime StartDate { get; set; }
-
-        [Required]
-        public DateTime EndDate { get; set; }
-
-        [Required]
         public string ContactId { get; set; }
-
-        [Required]
+        
         public string ContactName { get; set; }
 
-        [Required]
         public string ContactEmail { get; set; }
 
-        [Required]
-        public int ContactAge { get; set; }
+        public double TotalCost { get; set; }
 
-        [Required]
-        public string Street { get; set; }
+        public DateTime BookingDate { get; set; }
 
-        public string ZipCode { get; set; }
+        public DateTime StartDate { get; set; }
 
-        [Required]
-        public string State { get; set; }
+        public DateTime EndDate { get; set; }
 
-        [Required]
-        public string Country { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+
+        public string Status { get; set; }
+
+        public string RoomId { get; set; }
+        public string RoomName { get; set; }
     }
 }

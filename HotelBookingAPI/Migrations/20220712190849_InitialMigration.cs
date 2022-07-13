@@ -22,7 +22,7 @@ namespace HotelBookingAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Addresses", x => x.Id);
+                    table.PrimaryKey("PK_Address", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,9 +52,9 @@ namespace HotelBookingAPI.Migrations
                 {
                     table.PrimaryKey("PK_Person", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Person_Addresses_AddressId",
+                        name: "FK_Person_Address_AddressId",
                         column: x => x.AddressId,
-                        principalTable: "Addresses",
+                        principalTable: "Address",
                         principalColumn: "Id");
                 });
 
@@ -70,7 +70,7 @@ namespace HotelBookingAPI.Migrations
                     BookingDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StartDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     EndDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ModifiedDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     RoomId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
@@ -118,7 +118,7 @@ namespace HotelBookingAPI.Migrations
                 name: "Room");
 
             migrationBuilder.DropTable(
-                name: "Addresses");
+                name: "Address");
         }
     }
 }

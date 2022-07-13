@@ -20,7 +20,7 @@ namespace HotelBookingAPI.ViewModels
         [Required]
         public string ContactName { get; set; }
 
-        [Required]
+        [EmailAddress(ErrorMessage = "Emai")]
         public string ContactEmail { get; set; }
 
         [Required]
