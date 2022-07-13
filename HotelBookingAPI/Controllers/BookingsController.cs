@@ -48,21 +48,27 @@ namespace HotelBookingAPI.Controllers
         [HttpPut]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BookingResponse<BookingVM>>> UpdateBooking(UpdateBookingVM booking)
         {
             var result = await _bookingService.Update(booking);
+            if (!result.Success) 
+                return BadRequest(result);
             return Ok(result);
         }
 
         [HttpDelete]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<BookingResponse<BookingVM>>> CancelBooking(CancelBookingVM booking)
         {
             var result = await _bookingService.Cancel(booking);
-            return Ok(result);
+            if(!result.Success) 
+                return BadRequest(result);
+            else return Ok(result);
         }
 
     }
