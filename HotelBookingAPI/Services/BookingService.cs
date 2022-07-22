@@ -53,7 +53,8 @@ namespace HotelBookingAPI.Services
                 code = BookingTools.GenerateReservationCode(6);
             b.ReservationCode = code;
 
-            b.Room = await _dbContext.Rooms.FirstOrDefaultAsync(f => f.Id == BookingTools.GetDefaultRoom().Id);
+            var room = await _dbContext.Rooms.FirstOrDefaultAsync();
+            b.Room = room ?? new Room { Name = "First Room" };
 
             var contact = await _dbContext.People.FirstOrDefaultAsync(f => f.Id == b.Contact.Id);
             if (contact != null)

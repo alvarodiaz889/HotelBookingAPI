@@ -10,9 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var connectionString = builder.Configuration.GetConnectionString("ApiConnection");
+var connectionString = builder.Configuration.GetConnectionString("SQLServer");
 builder.Services.AddDbContext<ApiDBContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -30,8 +30,11 @@ builder.Services.AddScoped<IBookingService>(ctx => {
     return new BookingService(db, opt, map);
 });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
+app.MapHealthChecks("/health");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -41,6 +44,7 @@ if (app.Environment.IsDevelopment())
 
 //apply pending migrations on the DB
 using var scope = (app as IApplicationBuilder).ApplicationServices.GetService<IServiceScopeFactory>().CreateScope();
+//scope.ServiceProvider.GetRequiredService<ApiDBContext>().Database.EnsureCreated();
 scope.ServiceProvider.GetRequiredService<ApiDBContext>().Database.Migrate();
 
 app.UseHttpsRedirection();

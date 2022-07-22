@@ -7,6 +7,7 @@ namespace HotelBookingAPI.Models
     public class Person
     {
         [Key]
+        [StringLength(20)]
         public string Id { get; set; }
         
         [Required]

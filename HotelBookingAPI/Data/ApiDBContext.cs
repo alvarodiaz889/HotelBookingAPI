@@ -15,9 +15,14 @@ namespace HotelBookingAPI.Data
             modelBuilder.Entity<Booking>()
                 .Property(u => u.Status)
                 .HasConversion<int>();
+
+            modelBuilder.Entity<Person>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
 
         public DbSet<Address> Addresses { get; set; }
+
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Person> People { get; set; }
 

@@ -30,7 +30,6 @@ namespace HotelBookingAPI.Mapper
                             ZipCode = src.ZipCode
                         }
                     };
-                    dest.Room = BookingTools.GetDefaultRoom();
                     dest.BookingDate = DateTime.Now;
                 })
                 .ReverseMap();
